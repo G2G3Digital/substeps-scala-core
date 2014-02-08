@@ -1,4 +1,4 @@
-package com.technophobia.substeps
+package com.technophobia.substeps.model.execution
 
 sealed abstract class RunResult {
 
@@ -7,16 +7,17 @@ sealed abstract class RunResult {
 }
 object RunResult {
 
-  object NotRun extends RunResult {
+  object NoneRun extends RunResult {
 
     def combine(other: RunResult) = other
   }
+
   object Passed extends RunResult {
 
     def combine(other: RunResult) = other match {
 
       case Passed => Passed
-      case NotRun => Passed
+      case NoneRun => Passed
       case x => x
     }
 
