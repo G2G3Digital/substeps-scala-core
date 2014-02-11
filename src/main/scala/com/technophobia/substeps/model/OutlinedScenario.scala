@@ -9,5 +9,13 @@ class OutlinedScenario(outlineTitle: String, derivedScenarios: Ordered[BasicScen
 object OutlinedScenario {
 
 
-  def apply(outlineTitle: String, )
+  def apply(outlineTitle: String, outline: Seq[String], examples: List[Map[String, String]], tags: Set[Tag]): OutlinedScenario = {
+
+    def applyExampleToSubstepInvocation()
+
+
+    for(example <- examples; outlineStep <- outline; )
+
+    new OutlinedScenario(outlineTitle, null, tags)
+  }
 }

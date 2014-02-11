@@ -5,7 +5,7 @@ import com.technophobia.substeps.model.execution.RunResult
 import org.hamcrest.CoreMatchers._
 import com.technophobia.substeps.repositories.SubstepRepository
 
-class ExecutionTest {
+class ScenarioExecutionTest {
 
   @Before
   def createSubsteps() {
@@ -26,17 +26,27 @@ class ExecutionTest {
   @Test
   def basicScenarioWhichShouldPassTest() {
 
-    val scenario = BasicScenario("As a user I want to do some maths", List("When I add 3 to 5 then divide by 2", "Then I get 4"))
+    val scenario = BasicScenario("As a user I want to do some maths", List("When I add 3 to 5 then divide by 2", "Then I get 4"), Set())
     Assert.assertEquals(RunResult.Passed, scenario.run())
   }
 
   @Test
   def basicScenarioWhichShouldFailTest() {
 
-    val scenario = BasicScenario("As a user I want to do some maths", List("When I add 1 to 9 then divide by 2", "Then I get 6"))
+    val scenario = BasicScenario("As a user I want to do some maths", List("When I add 1 to 9 then divide by 2", "Then I get 6"), Set())
     Assert.assertEquals(RunResult.Failed(List("expected:<6> but was:<5>")), scenario.run())
   }
 
+  @Test
+  def testOutlineScenarioShouldPass() {
+
+    val examples = List(Map("a" -> "3", "b" -> "5", "c" -> "4"),
+                        Map("a" -> "7", "b" -> "3", "c" -> "5"))
+
+    val outlineScenario = OutlinedScenario("As a user I want to repeatedly do maths",
+        List("When I add <a> to <b> then divide by 2", "Then I get <c>"), examples, Set())
+    Assert.assertEquals(RunResult.Passed, outlineScenario.run())
+  }
 
   class Calculator {
 
