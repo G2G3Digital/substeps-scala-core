@@ -1,7 +1,6 @@
 package com.technophobia.substeps
 
-import com.technophobia.substeps.nodes.{UnresolvedSubstepUsage, SubstepUsage, Substep}
-import com.technophobia.substeps.node.factory.SubstepNodeFactory
+import com.technophobia.substeps.model.{WrittenSubstep, Substep}
 
 class SubstepsFileParser extends AbstractParser[List[Substep]] {
 
@@ -9,12 +8,12 @@ class SubstepsFileParser extends AbstractParser[List[Substep]] {
 
   private def substepsFile: Parser[List[Substep]] = rep(eol) ~> repsep(substepDef, rep1(eol)) <~ rep(eol)
 
-  private def substepDef: Parser[Substep] = (substepNameLine <~ rep1(eol)) ~ rep1sep(substepUsage, eol) ^^ {
+  private def substepDef: Parser[Substep] = (signature <~ rep1(eol)) ~ rep1sep(substepInvocation, eol) ^^ {
 
-    case(substepsName ~ substepUsages) => SubstepNodeFactory.defineFromFile(substepsName, substepUsages)
+    case(signature ~ substepUsages) => WrittenSubstep(signature, substepUsages:_*)
   }
 
-  def substepUsage: Parser[SubstepUsage] = """([^:\r\n])+""".r ^^ ((x) => UnresolvedSubstepUsage(x.trim))
+  def substepInvocation: Parser[String] = """([^:\r\n])+""".r ^^ (_.trim)
 
-  private def substepNameLine: Parser[String] = "Define:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r ^^ ((x) => x.trim)
+  private def signature: Parser[String] = "Define:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r ^^ ((x) => x.trim)
 }

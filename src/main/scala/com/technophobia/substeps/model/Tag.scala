@@ -1,5 +1,3 @@
 package com.technophobia.substeps.model
 
-class Tag(name: String) {
-
-}
+case class Tag(name: String)

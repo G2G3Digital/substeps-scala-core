@@ -12,9 +12,9 @@ class ExecutionTest {
 
     SubstepRepository.clear()
     val calculator = new Calculator
-    val addStep = CodedSubstep( """ADD [\d]+""".r, classOf[Calculator].getMethod("add", classOf[Int]), calculator)
-    val divideStep = CodedSubstep( """DIVIDE BY [\d]+ ADD .+ AND ROUND DOWN""".r, classOf[Calculator].getMethod("divideByAddAndRoundDown", classOf[Int], classOf[Int]), calculator)
-    val resultStep = CodedSubstep( """Then I get [\d]+""".r, classOf[Calculator].getMethod("assertMemory", classOf[Int]), calculator)
+    val addStep = CodedSubstep( """ADD ([\d]+)""".r, classOf[Calculator].getMethod("add", classOf[Int]), calculator)
+    val divideStep = CodedSubstep( """DIVIDE BY ([\d]+) ADD (.+) AND ROUND DOWN""".r, classOf[Calculator].getMethod("divideByAddAndRoundDown", classOf[Int], classOf[Double]), calculator)
+    val resultStep = CodedSubstep( """Then I get ([\d]+)""".r, classOf[Calculator].getMethod("assertMemory", classOf[Int]), calculator)
     val mathsStep = WrittenSubstep("When I add <FIRST> to <SECOND> then divide by <THIRD>", "ADD <FIRST>", "ADD <SECOND>", "DIVIDE BY <THIRD> ADD 0.5 AND ROUND DOWN")
 
     SubstepRepository.add(addStep)
@@ -34,7 +34,7 @@ class ExecutionTest {
   def basicScenarioWhichShouldFailTest() {
 
     val scenario = BasicScenario("As a user I want to do some maths", List("When I add 1 to 9 then divide by 2", "Then I get 6"))
-    Assert.assertEquals(RunResult.Failed, scenario.run())
+    Assert.assertEquals(RunResult.Failed(List("expected:<6> but was:<5>")), scenario.run())
   }
 
 
@@ -43,8 +43,8 @@ class ExecutionTest {
     var memory: Int = 0
 
     def add(input: Int) { memory += input }
-    def divideByAddAndRoundDown(divideBy: Int, add: Int) { memory = ((memory.asInstanceOf[Double] / divideBy) + add).asInstanceOf[Int]}
-    def assertMemory(input: Int) {Assert.assertEquals(memory, input)}
+    def divideByAddAndRoundDown(divideBy: Int, add: Double) { memory = ((memory.asInstanceOf[Double] / divideBy) + add).asInstanceOf[Int]}
+    def assertMemory(input: Int) {Assert.assertEquals(input, memory)}
 
   }
 }

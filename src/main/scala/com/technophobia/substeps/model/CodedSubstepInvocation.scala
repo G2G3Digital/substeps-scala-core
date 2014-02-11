@@ -1,6 +1,7 @@
 package com.technophobia.substeps.model
 
 import com.technophobia.substeps.model.execution.RunResult
+import java.lang.reflect.InvocationTargetException
 
 /**
  * @author rbarefield
@@ -12,13 +13,21 @@ case class CodedSubstepInvocation(f: () => Any) extends SubstepInvocation {
     try {
 
       f()
+      RunResult.Passed
 
     } catch {
 
-      case a: AssertionError => RunResult.Failed
-      case b: Exception => RunResult.Failed
+      case a: InvocationTargetException => {
+
+        a.getCause match {
+
+          case nested: AssertionError => RunResult.Failed(nested.getMessage)
+          case _ => RunResult.Failed(a.getCause.getMessage)
+        }
+
+
+      }
     }
 
-    RunResult.Passed
   }
 }

@@ -1,8 +1,9 @@
 package com.technophobia.substeps
 
-import com.technophobia.substeps.nodes._
-import com.technophobia.substeps.nodes.BasicScenario
-import com.technophobia.substeps.nodes.Feature
+import scala.Some
+import com.technophobia.substeps.model._
+import com.technophobia.substeps.model.Feature
+import com.technophobia.substeps.model.Tag
 import scala.Some
 
 class FeatureFileParser extends AbstractParser[Feature] {
@@ -11,38 +12,38 @@ class FeatureFileParser extends AbstractParser[Feature] {
 
   private def featureFile: Parser[Feature] = opt(tagDef <~ rep1(eol)) ~ (featureDef <~ rep1(eol)) ~ (rep(scenario) <~ rep(eol)) ^^ {
 
-    case (Some(tags) ~ featureName ~ scenarios) => Feature(featureName, tags, scenarios)
-    case (None ~ featureName ~ scenarios) => Feature(featureName, Nil, scenarios)
+    case (Some(tags) ~ featureName ~ scenarios) => Feature(featureName, scenarios, tags.toSet)
+    case (None ~ featureName ~ scenarios) => Feature(featureName, scenarios, Set())
   }
 
-  private def tagDef: Parser[List[String]] = "Tags:" ~> opt(whiteSpace) ~> repsep(tag, whiteSpace)
+  private def tagDef: Parser[List[Tag]] = "Tags:" ~> opt(whiteSpace) ~> repsep(tag, whiteSpace)
 
-  private def tag: Parser[String]   = """[1-9A-Za-z-_~]+""".r
+  private def tag: Parser[Tag]   = """[1-9A-Za-z-_~]+""".r ^^ (Tag(_))
 
   private def featureDef: Parser[String] = "Feature:" ~> opt(whiteSpace) ~> """[^\r\n]+""".r
 
   private def scenario: Parser[Scenario] = basicScenario | scenarioOutline
 
-  private def basicScenario: Parser[BasicScenario] = (opt(tagDef <~ eol) ~ scenarioDef <~ eol) ~ rep1sep(substepUsage, eol) <~ rep(eol) ^^ {
+  private def basicScenario: Parser[BasicScenario] = (opt(tagDef <~ eol) ~ scenarioDef <~ eol) ~ rep1sep(substepInvocation, eol) <~ rep(eol) ^^ {
 
-    case (Some(tags) ~ scenarioName ~ substeps) => BasicScenario(scenarioName, tags, substeps)
-    case (None ~ scenarioName ~ substeps) => BasicScenario(scenarioName, Nil, substeps)
+    case (Some(tags) ~ scenarioName ~ substepInvocations) => BasicScenario(scenarioName, substepInvocations, tags.toSet)
+    case (None ~ scenarioName ~ substepInvocations) => BasicScenario(scenarioName, substepInvocations, Set())
   }
 
-  def substepUsage: Parser[SubstepUsage] = """([^:\r\n])+""".r ^^ ((x) => UnresolvedSubstepUsage(x.trim))
+  def substepInvocation: Parser[String] = """([^:\r\n])+""".r ^^ (_.trim)
 
   private def scenarioDef: Parser[String] = "Scenario:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r
 
-  private def scenarioOutline: Parser[ScenarioOutline] = opt(tagDef <~ rep1(eol)) ~ (scenarioOutlineDef <~ rep1(eol)) ~ (rep1sep(substepUsage, eol) <~ rep(eol)) ~ exampleSection <~ rep(eol) ^^ {
+  private def scenarioOutline: Parser[OutlinedScenario] = opt(tagDef <~ rep1(eol)) ~ (scenarioOutlineDef <~ rep1(eol)) ~ (rep1sep(substepInvocation, eol) <~ rep(eol)) ~ exampleSection <~ rep(eol) ^^ {
 
-    case (Some(tags) ~ scenarioName ~ substeps ~ examples) => ScenarioOutline(scenarioName, tags, substeps, examples)
-    case (None ~ scenarioName ~ substeps ~ examples) => ScenarioOutline(scenarioName, Nil, substeps, examples)
+    case (Some(tags) ~ scenarioName ~ substeps ~ examples) => OutlinedScenario(scenarioName, substeps, examples, tags.toSet)
+    case (None ~ scenarioName ~ substeps ~ examples) => OutlinedScenario(scenarioName, substeps, examples, Set())
 
   }
 
   private def scenarioOutlineDef: Parser[String] = "Scenario Outline:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r
 
-    private def exampleSection: Parser[List[Map[String, String]]] = ("Examples:" ~ opt(whiteSpace) ~ rep1(eol)) ~> (lineOfCells <~ rep1(eol)) ~ repsep(lineOfCells, eol) ^^ {
+  private def exampleSection: Parser[List[Map[String, String]]] = ("Examples:" ~ opt(whiteSpace) ~ rep1(eol)) ~> (lineOfCells <~ rep1(eol)) ~ repsep(lineOfCells, eol) ^^ {
 
     case (headings ~ examples) => for(example <- examples; examplesWithHeading = headings.zip(example)) yield Map(examplesWithHeading:_*)
   }
