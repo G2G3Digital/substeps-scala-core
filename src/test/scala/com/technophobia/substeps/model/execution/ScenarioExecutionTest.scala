@@ -1,9 +1,8 @@
-package com.technophobia.substeps.model
+package com.technophobia.substeps.model.execution
 
-import org.junit.{Before, Assert, Test}
-import com.technophobia.substeps.model.execution.RunResult
-import org.hamcrest.CoreMatchers._
 import com.technophobia.substeps.repositories.SubstepRepository
+import com.technophobia.substeps.model.{OutlinedScenario, BasicScenario, WrittenSubstep, CodedSubstep}
+import org.junit.{Assert, Test, Before}
 
 class ScenarioExecutionTest {
 
