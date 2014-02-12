@@ -1,13 +1,29 @@
 package com.technophobia.substeps
 
 
-import org.junit.{Test, Assert}
-import com.technophobia.substeps.model.{OutlinedScenario, Feature, BasicScenario}
+import org.junit.{Before, Test, Assert}
+import com.technophobia.substeps.model._
+import com.technophobia.substeps.repositories.SubstepRepository
+import com.technophobia.substeps.model.WrittenSubstepInvocation
+import com.technophobia.substeps.model.Feature
+import com.technophobia.substeps.model.Tag
 
 class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Feature] {
 
   private val SIMPLE_FEATURE_FILE = "simple.feature"
   private val SCENARIO_OUTLINE_FEATURE_FILE = "scenario-outline.feature"
+
+  @Before
+  def prepareSubsteps() {
+
+    SubstepRepository.clear()
+    SubstepRepository.add(WrittenSubstep("Given I think"))
+    SubstepRepository.add(WrittenSubstep("Then I am"))
+
+    SubstepRepository.add(WrittenSubstep("Given I think for <SECONDS>"))
+    SubstepRepository.add(WrittenSubstep("Then I am <TIREDNESS_LEVEL>"))
+    SubstepRepository.add(WrittenSubstep("So <SECONDS> means I'll be <TIREDNESS_LEVEL>"))
+  }
 
 
   @Test
@@ -16,20 +32,20 @@ class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Fe
     val feature = getSuccessfulParse(SIMPLE_FEATURE_FILE)
 
     Assert.assertEquals("A simple feature name", feature.name)
-    Assert.assertEquals(List("featureTag-1", "featureTag-2"), feature.tags)
+    Assert.assertEquals(Set(Tag("featureTag-1"), Tag("featureTag-2")), feature.tags)
     Assert.assertEquals(1, feature.scenarios.size)
 
     val scenario = feature.scenarios.head
 
-//    Assert.assertEquals("A simple scenario name", scenario.name)
-//    Assert.assertEquals(List("scenarioTag-1", "scenarioTag-2"), scenario.asInstanceOf[BasicScenario].tags)
-//    Assert.assertEquals(2, scenario.asInstanceOf[BasicScenario].steps.size)
-//
-//    val substep1 = scenario.asInstanceOf[BasicScenario].steps(0)
-//    val substep2 = scenario.asInstanceOf[BasicScenario].steps(1)
-//
-//    Assert.assertEquals("Given I think", substep1.usageString)
-//    Assert.assertEquals("Then I am", substep2.usageString)
+    Assert.assertEquals("A simple scenario name", scenario.title)
+    Assert.assertEquals(Set(Tag("scenarioTag-1"), Tag("scenarioTag-2")), scenario.asInstanceOf[BasicScenario].tags)
+    Assert.assertEquals(2, scenario.asInstanceOf[BasicScenario].steps.size)
+
+    val substep1 = scenario.asInstanceOf[BasicScenario].steps(0).asInstanceOf[WrittenSubstepInvocation]
+    val substep2 = scenario.asInstanceOf[BasicScenario].steps(1).asInstanceOf[WrittenSubstepInvocation]
+
+    Assert.assertEquals("Given I think", substep1.invocationLine)
+    Assert.assertEquals("Then I am", substep2.invocationLine)
 
   }
 
@@ -46,37 +62,37 @@ class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Fe
 
     def assertScenarioOutline(scenarioOutline: OutlinedScenario) {
 
-//      Assert.assertEquals("A scenario that's an outline", scenarioOutline.name)
-//
-//      Assert.assertEquals(2, scenarioOutline.scenarios.size)
-//
-//      val firstExampleScenario = scenarioOutline.scenarios(0)
-//
-//      Assert.assertEquals(List("scenarioOutlineTag"), firstExampleScenario.tags)
-//      val example1substep1 = firstExampleScenario.steps(0)
-//      val example1substep2 = firstExampleScenario.steps(1)
-//      val example1substep3 = firstExampleScenario.steps(2)
-//
-//      Assert.assertEquals("Given I think for 5", example1substep1.usageString)
-//      Assert.assertEquals("Then I am OK", example1substep2.usageString)
-//      Assert.assertEquals("So 5 means I'll be OK", example1substep3.usageString)
-//
-//      val secondExampleScenario = scenarioOutline.scenarios(1)
-//
-//      Assert.assertEquals(List("scenarioOutlineTag"), secondExampleScenario.tags)
-//      val example2substep1 = secondExampleScenario.steps(0)
-//      val example2substep2 = secondExampleScenario.steps(1)
-//      val example2substep3 = secondExampleScenario.steps(2)
-//
-//      Assert.assertEquals("Given I think for 120", example2substep1.usageString)
-//      Assert.assertEquals("Then I am EXHAUSTED", example2substep2.usageString)
-//      Assert.assertEquals("So 120 means I'll be EXHAUSTED", example2substep3.usageString)
+    Assert.assertEquals("A scenario that's an outline", scenarioOutline.title)
+
+    Assert.assertEquals(2, scenarioOutline.derivedScenarios.size)
+
+    val firstExampleScenario = scenarioOutline.derivedScenarios(0)
+
+    Assert.assertEquals(Set(Tag("scenarioOutlineTag")), firstExampleScenario.tags)
+    val example1substep1 = firstExampleScenario.steps(0).asInstanceOf[WrittenSubstepInvocation]
+    val example1substep2 = firstExampleScenario.steps(1).asInstanceOf[WrittenSubstepInvocation]
+    val example1substep3 = firstExampleScenario.steps(2).asInstanceOf[WrittenSubstepInvocation]
+
+    Assert.assertEquals("Given I think for 5", example1substep1.invocationLine)
+    Assert.assertEquals("Then I am OK", example1substep2.invocationLine)
+    Assert.assertEquals("So 5 means I'll be OK", example1substep3.invocationLine)
+
+    val secondExampleScenario = scenarioOutline.derivedScenarios(1)
+
+    Assert.assertEquals(Set(Tag("scenarioOutlineTag")), secondExampleScenario.tags)
+    val example2substep1 = secondExampleScenario.steps(0).asInstanceOf[WrittenSubstepInvocation]
+    val example2substep2 = secondExampleScenario.steps(1).asInstanceOf[WrittenSubstepInvocation]
+    val example2substep3 = secondExampleScenario.steps(2).asInstanceOf[WrittenSubstepInvocation]
+
+    Assert.assertEquals("Given I think for 120", example2substep1.invocationLine)
+    Assert.assertEquals("Then I am EXHAUSTED", example2substep2.invocationLine)
+    Assert.assertEquals("So 120 means I'll be EXHAUSTED", example2substep3.invocationLine)
 
     }
 
     scenario match {
 
-//      case scenarioOutline: ScenarioOutline => assertScenarioOutline(scenarioOutline)
+      case scenarioOutline: OutlinedScenario => assertScenarioOutline(scenarioOutline)
       case x => throw new AssertionError("Scenario was of wrong type" + x.getClass.toString);
 
     }

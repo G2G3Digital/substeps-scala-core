@@ -40,7 +40,7 @@ class ScenarioExecutionTest {
   }
 
   @Test
-  def testOutlineScenarioShouldPass() {
+  def outlineScenarioShouldPass() {
 
     val examples = List(Map("a" -> "3", "b" -> "5", "c" -> "4"),
                         Map("a" -> "7", "b" -> "3", "c" -> "5"))

@@ -5,7 +5,7 @@ import com.technophobia.substeps.model.execution.RunResult
 /**
  * @author rbarefield
  */
-case class WrittenSubstepInvocation(builtFrom: Substep, invocationLine: String, substepInvocations: Seq[SubstepInvocation]) extends SubstepInvocation {
+case class WrittenSubstepInvocation(builtFrom: Substep, val invocationLine: String, substepInvocations: Seq[SubstepInvocation]) extends SubstepInvocation {
 
   def run() : RunResult = {
 

@@ -2,7 +2,7 @@ package com.technophobia.substeps.model
 
 import com.technophobia.substeps.model.execution.RunResult
 
-class OutlinedScenario(outlineTitle: String, derivedScenarios: Seq[BasicScenario], tags: Set[Tag]) extends Scenario(tags) {
+class OutlinedScenario(outlineTitle: String, val derivedScenarios: Seq[BasicScenario], tags: Set[Tag]) extends Scenario(outlineTitle, tags) {
 
   def run(): RunResult = {
 
@@ -23,7 +23,7 @@ object OutlinedScenario {
 
     val derivedStepsWithIndexes: Seq[(Seq[String], Int)] = (derivedStepsForAllExamples zip Stream.from(1))
 
-    val derivedScenarios = derivedStepsWithIndexes.map{case (derivedSteps, index) => BasicScenario(outlineTitle + ": " + index, derivedSteps, Set())}
+    val derivedScenarios = derivedStepsWithIndexes.map{case (derivedSteps, index) => BasicScenario(outlineTitle + ": " + index, derivedSteps, tags)}
 
     new OutlinedScenario(outlineTitle, derivedScenarios, tags)
   }
