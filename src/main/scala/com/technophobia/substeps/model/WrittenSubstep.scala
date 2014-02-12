@@ -33,9 +33,7 @@ case class WrittenSubstep(signature: String, invocationLines: String*) extends S
 
   private def rewriteWithParameters(invocation: String, parametersToValues: Map[String, String]): String = {
 
-    var withReplacements = invocation
-    for((parameter, value) <- parametersToValues) {withReplacements = withReplacements.replaceAllLiterally(parameter, value)}
-    withReplacements
+    parametersToValues.foldLeft[String](invocation)((b, a) => b.replaceAllLiterally(a._1, a._2))
   }
 
 }

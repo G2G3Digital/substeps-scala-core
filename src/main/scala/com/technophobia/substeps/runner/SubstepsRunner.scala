@@ -1,7 +1,7 @@
 package com.technophobia.substeps.runner
 
 import java.io.Reader
-import com.technophobia.substeps.{StepImplementationLoader, SubstepsFileParser, FeatureFileParser}
+import com.technophobia.substeps.{SubstepsFileParser, FeatureFileParser}
 import org.reflections.Reflections
 import org.reflections.util.ConfigurationBuilder
 import com.technophobia.substeps.model.SubSteps.Step
@@ -16,7 +16,7 @@ object SubstepsRunner {
 
     val features = featureFiles.map(featureFileParser.parseOrFail(_))
     val substeps = substepFiles.map(substepsFileParser.parseOrFail(_))
-    StepImplementationLoader.loadStepImplementations(basePackages)
+//    StepImplementationLoader.loadStepImplementations(basePackages)
   }
 
 }
