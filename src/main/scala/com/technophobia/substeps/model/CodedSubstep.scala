@@ -1,9 +1,8 @@
 package com.technophobia.substeps.model
 
 import scala.util.matching.Regex
-import com.technophobia.substeps.model.execution.RunResult
 import java.lang.reflect.Method
-import com.technophobia.substeps.model.parameter.Converter
+import com.technophobia.substeps.model.parameter.ConverterFactory
 
 case class CodedSubstep(signature: Regex, method: Method, instance: AnyRef) extends Substep(signature) {
 
@@ -19,8 +18,8 @@ case class CodedSubstep(signature: Regex, method: Method, instance: AnyRef) exte
 
     def coerceInputs(inputStrings: Seq[String]): Seq[AnyRef] = {
 
-      val zipped : Seq[(String, Class[_])] = (inputStrings zip argumentTypes)
-      zipped.map(p => Converter.convert(p._1, p._2))
+      val zipped : Seq[(String, Class[_])] = inputStrings zip argumentTypes
+      zipped.map(p => ConverterFactory.convert(p._1, p._2))
     }
 
     val inputStrings = extractInputs(invocation)

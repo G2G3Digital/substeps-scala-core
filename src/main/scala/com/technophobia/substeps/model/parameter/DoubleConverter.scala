@@ -1,10 +1,11 @@
 package com.technophobia.substeps.model.parameter
 
 import java.lang.Double
+import collection.JavaConversions._
 
-object DoubleConverter extends Converter {
+object DoubleConverter extends Converter[Double] {
 
-  val converts = Double.TYPE
+  val converts: java.util.Set[Class[_]] = Set[Class[_]](Double.TYPE)
   def convert(value: String) = {
 
     if (value == null) {

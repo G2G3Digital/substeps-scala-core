@@ -1,7 +1,9 @@
 package com.technophobia.substeps.model.parameter
 
-object StringConverter extends Converter {
+import collection.JavaConversions._
 
-  val converts = classOf[String]
+object StringConverter extends Converter[String] {
+
+  val converts: java.util.Set[Class[_]] = Set[Class[_]](classOf[String])
   def convert(value: String) = value
 }
