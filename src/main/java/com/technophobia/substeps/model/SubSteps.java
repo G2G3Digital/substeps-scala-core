@@ -65,6 +65,6 @@ public abstract class SubSteps {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.PARAMETER)
     public static @interface StepParameter {
-        Class<? extends Converter<?>> converter();
+        Class<? extends Converter> converter();
     }
 }

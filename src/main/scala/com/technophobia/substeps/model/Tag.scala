@@ -1,3 +1,9 @@
 package com.technophobia.substeps.model
 
-case class Tag(name: String)
+class Tag private (name: String)
+object Tag {
+
+  val tags = Map[String, Tag]().withDefault(new Tag(_))
+
+  def apply(tagName: String) = tags(tagName)
+}
