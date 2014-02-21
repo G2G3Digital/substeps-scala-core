@@ -6,13 +6,23 @@ import com.technophobia.substeps.SubstepsLoggers
 
 class BasicScenario(title: String, val steps: Seq[SubstepInvocation], tags: Set[Tag]) extends Scenario(title, tags) {
 
-  def run(): RunResult = {
 
-    SubstepsLoggers.compositeLogger.info("Running basic scenario: " + title)
-    val result = steps.foldLeft[RunResult](RunResult.NoneRun)((b,a) => b.combine(a.run()))
-    SubstepsLoggers.compositeLogger.info("Basic scenario complete")
-    result
+  implicit class andString(before: String) {
+
+    def apply[T](result: => T)(after: String) = {
+
+      SubstepsLoggers.compositeLogger.info(before)
+      result
+
+    }
   }
+
+
+  def run(): RunResult = ("Running basic scenario: " + title){
+
+                            steps.foldLeft[RunResult](RunResult.NoneRun)((b,a) => b.combine(a.run()))
+
+                         }("Basic Scenario complete")
 
 }
 object BasicScenario {
