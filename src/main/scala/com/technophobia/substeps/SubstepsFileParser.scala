@@ -15,5 +15,5 @@ class SubstepsFileParser extends AbstractParser[List[Substep]] {
 
   def substepInvocation: Parser[String] = """([^:\r\n])+""".r ^^ (_.trim)
 
-  private def signature: Parser[String] = "Define:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r ^^ ((x) => x.trim)
+  private def signature: Parser[String] = opt(whiteSpace) ~> "Define:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r ^^ ((x) => x.trim)
 }

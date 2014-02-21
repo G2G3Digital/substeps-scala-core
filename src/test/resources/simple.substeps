@@ -1,6 +1,13 @@
+
 Define: Given series of substeps is executed
-When an event occurs 
-Then bad things happen 
+
+
+
+   
+
+
+When an event occurs
+Then bad things happen
 And people get upset
 
 Define: Given substep with param1 <name1> and param2 <name2>
@@ -22,5 +29,8 @@ Given something
 Define: Then a method with a quoted '<param>' 
 Then method with param <param>    			
 
-Define: Given something
+
+  Define: Given something
+
+
 I'll take it
