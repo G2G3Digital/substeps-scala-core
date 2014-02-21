@@ -22,7 +22,6 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
     substepRepository.add(WrittenSubstep("So <SECONDS> means I'll be <TIREDNESS_LEVEL>"))
   }
 
-
   @Test
   def testSimpleFeature() {
 
@@ -93,6 +92,22 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
       case x => throw new AssertionError("Scenario was of wrong type" + x.getClass.toString)
 
     }
+
+  }
+
+  @Test
+  def missingSubstepTest() {
+
+    substepRepository.clear()
+
+    val feature = getSuccessfulParse(SIMPLE_FEATURE_FILE)
+
+    val scenario = feature.scenarios.head.asInstanceOf[BasicScenario]
+
+    val steps = scenario.steps
+
+    Assert.assertEquals(2, steps.size)
+    steps.foreach(a => Assert.assertTrue(a.isInstanceOf[MissingSubstepInvocation]))
 
   }
 
