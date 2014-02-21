@@ -14,15 +14,15 @@ class FeatureFileParser(protected val substepRepository: SubstepRepository) exte
     case (None ~ featureName ~ scenarios) => Feature(featureName, scenarios, Set())
   }
 
-  private def tagDef: Parser[List[Tag]] = "Tags:" ~> opt(whiteSpace) ~> repsep(tag, whiteSpace)
+  private def tagDef: Parser[List[Tag]] = opt(whiteSpace) ~> "Tags:" ~> opt(whiteSpace) ~> repsep(tag, whiteSpace)
 
   private def tag: Parser[Tag]   = """[1-9A-Za-z-_~]+""".r
 
-  private def featureDef: Parser[String] = "Feature:" ~> opt(whiteSpace) ~> """[^\r\n]+""".r
+  private def featureDef: Parser[String] = opt(whiteSpace) ~> "Feature:" ~> opt(whiteSpace) ~> """[^\r\n]+""".r
 
   private def scenario: Parser[Scenario] = basicScenario | scenarioOutline
 
-  private def basicScenario: Parser[BasicScenario] = (opt(tagDef <~ eol) ~ scenarioDef <~ eol) ~ rep1sep(substepInvocation, eol) <~ rep(eol) ^^ {
+  private def basicScenario: Parser[BasicScenario] = (opt(tagDef <~ rep1(eol)) ~ scenarioDef <~ rep1(eol)) ~ rep1sep(substepInvocation, rep1(eol)) <~ rep(eol) ^^ {
 
     case (Some(tags) ~ scenarioName ~ substepInvocations) => BasicScenario(substepRepository, scenarioName, substepInvocations, tags.toSet)
     case (None ~ scenarioName ~ substepInvocations) => BasicScenario(substepRepository, scenarioName, substepInvocations, Set())
@@ -30,7 +30,7 @@ class FeatureFileParser(protected val substepRepository: SubstepRepository) exte
 
   def substepInvocation: Parser[String] = """([^:\r\n])+""".r ^^ (_.trim)
 
-  private def scenarioDef: Parser[String] = "Scenario:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r
+  private def scenarioDef: Parser[String] = opt(whiteSpace) ~> "Scenario:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r
 
   private def scenarioOutline: Parser[OutlinedScenario] = opt(tagDef <~ rep1(eol)) ~ (scenarioOutlineDef <~ rep1(eol)) ~ (rep1sep(substepInvocation, eol) <~ rep(eol)) ~ exampleSection <~ rep(eol) ^^ {
 

@@ -8,7 +8,7 @@ abstract class AbstractParser[T] extends RegexParsers  {
   override val skipWhitespace = false
   override val whiteSpace                    = """[ \t]+""".r
 
-  def eol: Parser[Any]                       = """\r?\n""".r
+  def eol: Parser[Any]                       = """[ ]*\r?\n""".r
 
   protected def entryPoint: Parser[T];
 
