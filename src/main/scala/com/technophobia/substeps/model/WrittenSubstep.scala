@@ -2,18 +2,18 @@ package com.technophobia.substeps.model
 
 import scala.util.matching.Regex
 import scala.Predef._
+import com.technophobia.substeps.repositories.SubstepRepository
 
 
 case class WrittenSubstep(signature: String, invocationLines: String*) extends Substep(WrittenSubstep.asRegEx(signature)) {
 
   val parameterNames: List[String]= (for(paramWithArrows <- "<[^>]+>".r.findAllIn(signature)) yield paramWithArrows.substring(0, paramWithArrows.length)).toList
 
-
-  def createInvocation(invocation: String): WrittenSubstepInvocation = {
+  def createInvocation(substepRepository: SubstepRepository, invocation: String): WrittenSubstepInvocation = {
 
     val parameterToValues = createParameterToValueMap(invocation)
     val rewrittenInvocationLines = invocationLines.map(rewriteWithParameters(_, parameterToValues))
-    val substepInvocations = rewrittenInvocationLines.map(SubstepInvocation(_))
+    val substepInvocations = rewrittenInvocationLines.map(SubstepInvocation(substepRepository, _))
 
     WrittenSubstepInvocation(this, invocation, substepInvocations)
   }

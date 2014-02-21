@@ -3,7 +3,7 @@ package com.technophobia.substeps.repositories
 import com.technophobia.substeps.model.Substep
 import scala.util.matching.Regex
 
-object SubstepRepository {
+class SubstepRepository {
 
   var substepMap: Map[Regex, Substep] = Map()
 

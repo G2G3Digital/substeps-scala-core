@@ -1,6 +1,7 @@
 package com.technophobia.substeps.model
 
 import com.technophobia.substeps.model.execution.RunResult
+import com.technophobia.substeps.repositories.SubstepRepository
 
 class OutlinedScenario(outlineTitle: String, val derivedScenarios: Seq[BasicScenario], tags: Set[Tag]) extends Scenario(outlineTitle, tags) {
 
@@ -12,7 +13,7 @@ class OutlinedScenario(outlineTitle: String, val derivedScenarios: Seq[BasicScen
 object OutlinedScenario {
 
 
-  def apply(outlineTitle: String, outline: Seq[String], examples: List[Map[String, String]], tags: Set[Tag]): OutlinedScenario = {
+  def apply(substepRepository: SubstepRepository, outlineTitle: String, outline: Seq[String], examples: List[Map[String, String]], tags: Set[Tag]): OutlinedScenario = {
 
     def applyExampleToSubstepInvocation(example: Map[String, String], outlineLine: String)  = {
 
@@ -23,7 +24,7 @@ object OutlinedScenario {
 
     val derivedStepsWithIndexes: Seq[(Seq[String], Int)] = (derivedStepsForAllExamples zip Stream.from(1))
 
-    val derivedScenarios = derivedStepsWithIndexes.map{case (derivedSteps, index) => BasicScenario(outlineTitle + ": " + index, derivedSteps, tags)}
+    val derivedScenarios = derivedStepsWithIndexes.map{case (derivedSteps, index) => BasicScenario(substepRepository, outlineTitle + ": " + index, derivedSteps, tags)}
 
     new OutlinedScenario(outlineTitle, derivedScenarios, tags)
   }

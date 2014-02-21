@@ -1,6 +1,6 @@
 package com.technophobia.substeps.model.execution
 
-import com.technophobia.substeps.model.{Tag, Feature, Scenario}
+import com.technophobia.substeps.model.{Feature, Scenario}
 import org.mockito.runners.MockitoJUnitRunner
 import org.mockito.{Mockito, Mock}
 import org.junit.runner.RunWith

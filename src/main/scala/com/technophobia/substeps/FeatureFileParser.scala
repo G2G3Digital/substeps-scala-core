@@ -1,12 +1,10 @@
 package com.technophobia.substeps
 
+import _root_.com.technophobia.substeps.model._
 import scala.Some
-import com.technophobia.substeps.model._
-import com.technophobia.substeps.model.Feature
-import com.technophobia.substeps.model.Tag
-import scala.Some
+import com.technophobia.substeps.repositories.SubstepRepository
 
-class FeatureFileParser extends AbstractParser[Feature] {
+class FeatureFileParser(protected val substepRepository: SubstepRepository) extends AbstractParser[Feature] {
 
   protected override def entryPoint = featureFile
 
@@ -18,7 +16,7 @@ class FeatureFileParser extends AbstractParser[Feature] {
 
   private def tagDef: Parser[List[Tag]] = "Tags:" ~> opt(whiteSpace) ~> repsep(tag, whiteSpace)
 
-  private def tag: Parser[Tag]   = """[1-9A-Za-z-_~]+""".r ^^ (Tag(_))
+  private def tag: Parser[Tag]   = """[1-9A-Za-z-_~]+""".r
 
   private def featureDef: Parser[String] = "Feature:" ~> opt(whiteSpace) ~> """[^\r\n]+""".r
 
@@ -26,8 +24,8 @@ class FeatureFileParser extends AbstractParser[Feature] {
 
   private def basicScenario: Parser[BasicScenario] = (opt(tagDef <~ eol) ~ scenarioDef <~ eol) ~ rep1sep(substepInvocation, eol) <~ rep(eol) ^^ {
 
-    case (Some(tags) ~ scenarioName ~ substepInvocations) => BasicScenario(scenarioName, substepInvocations, tags.toSet)
-    case (None ~ scenarioName ~ substepInvocations) => BasicScenario(scenarioName, substepInvocations, Set())
+    case (Some(tags) ~ scenarioName ~ substepInvocations) => BasicScenario(substepRepository, scenarioName, substepInvocations, tags.toSet)
+    case (None ~ scenarioName ~ substepInvocations) => BasicScenario(substepRepository, scenarioName, substepInvocations, Set())
   }
 
   def substepInvocation: Parser[String] = """([^:\r\n])+""".r ^^ (_.trim)
@@ -36,8 +34,8 @@ class FeatureFileParser extends AbstractParser[Feature] {
 
   private def scenarioOutline: Parser[OutlinedScenario] = opt(tagDef <~ rep1(eol)) ~ (scenarioOutlineDef <~ rep1(eol)) ~ (rep1sep(substepInvocation, eol) <~ rep(eol)) ~ exampleSection <~ rep(eol) ^^ {
 
-    case (Some(tags) ~ scenarioName ~ substeps ~ examples) => OutlinedScenario(scenarioName, substeps, examples, tags.toSet)
-    case (None ~ scenarioName ~ substeps ~ examples) => OutlinedScenario(scenarioName, substeps, examples, Set())
+    case (Some(tags) ~ scenarioName ~ substeps ~ examples) => OutlinedScenario(substepRepository, scenarioName, substeps, examples, tags.toSet)
+    case (None ~ scenarioName ~ substeps ~ examples) => OutlinedScenario(substepRepository, scenarioName, substeps, examples, Set())
 
   }
 

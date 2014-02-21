@@ -2,13 +2,10 @@ package com.technophobia.substeps
 
 
 import org.junit.{Before, Test, Assert}
-import com.technophobia.substeps.model._
-import com.technophobia.substeps.repositories.SubstepRepository
-import com.technophobia.substeps.model.WrittenSubstepInvocation
-import com.technophobia.substeps.model.Feature
-import com.technophobia.substeps.model.Tag
+import _root_.com.technophobia.substeps.model._
+import _root_.com.technophobia.substeps.repositories.SubstepRepository
 
-class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Feature] {
+class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) with ParsingTestHelpers[Feature] {
 
   private val SIMPLE_FEATURE_FILE = "simple.feature"
   private val SCENARIO_OUTLINE_FEATURE_FILE = "scenario-outline.feature"
@@ -16,13 +13,13 @@ class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Fe
   @Before
   def prepareSubsteps() {
 
-    SubstepRepository.clear()
-    SubstepRepository.add(WrittenSubstep("Given I think"))
-    SubstepRepository.add(WrittenSubstep("Then I am"))
+    substepRepository.clear()
+    substepRepository.add(WrittenSubstep("Given I think"))
+    substepRepository.add(WrittenSubstep("Then I am"))
 
-    SubstepRepository.add(WrittenSubstep("Given I think for <SECONDS>"))
-    SubstepRepository.add(WrittenSubstep("Then I am <TIREDNESS_LEVEL>"))
-    SubstepRepository.add(WrittenSubstep("So <SECONDS> means I'll be <TIREDNESS_LEVEL>"))
+    substepRepository.add(WrittenSubstep("Given I think for <SECONDS>"))
+    substepRepository.add(WrittenSubstep("Then I am <TIREDNESS_LEVEL>"))
+    substepRepository.add(WrittenSubstep("So <SECONDS> means I'll be <TIREDNESS_LEVEL>"))
   }
 
 
@@ -32,13 +29,13 @@ class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Fe
     val feature = getSuccessfulParse(SIMPLE_FEATURE_FILE)
 
     Assert.assertEquals("A simple feature name", feature.name)
-    Assert.assertEquals(Set(Tag("featureTag-1"), Tag("featureTag-2")), feature.tags)
+    Assert.assertEquals(Set("featureTag-1", "featureTag-2"), feature.tags)
     Assert.assertEquals(1, feature.scenarios.size)
 
     val scenario = feature.scenarios.head
 
     Assert.assertEquals("A simple scenario name", scenario.title)
-    Assert.assertEquals(Set(Tag("scenarioTag-1"), Tag("scenarioTag-2")), scenario.asInstanceOf[BasicScenario].tags)
+    Assert.assertEquals(Set("scenarioTag-1", "scenarioTag-2"), scenario.asInstanceOf[BasicScenario].tags)
     Assert.assertEquals(2, scenario.asInstanceOf[BasicScenario].steps.size)
 
     val substep1 = scenario.asInstanceOf[BasicScenario].steps(0).asInstanceOf[WrittenSubstepInvocation]
@@ -68,7 +65,7 @@ class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Fe
 
     val firstExampleScenario = scenarioOutline.derivedScenarios(0)
 
-    Assert.assertEquals(Set(Tag("scenarioOutlineTag")), firstExampleScenario.tags)
+    Assert.assertEquals(Set("scenarioOutlineTag"), firstExampleScenario.tags)
     val example1substep1 = firstExampleScenario.steps(0).asInstanceOf[WrittenSubstepInvocation]
     val example1substep2 = firstExampleScenario.steps(1).asInstanceOf[WrittenSubstepInvocation]
     val example1substep3 = firstExampleScenario.steps(2).asInstanceOf[WrittenSubstepInvocation]
@@ -79,7 +76,7 @@ class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Fe
 
     val secondExampleScenario = scenarioOutline.derivedScenarios(1)
 
-    Assert.assertEquals(Set(Tag("scenarioOutlineTag")), secondExampleScenario.tags)
+    Assert.assertEquals(Set("scenarioOutlineTag"), secondExampleScenario.tags)
     val example2substep1 = secondExampleScenario.steps(0).asInstanceOf[WrittenSubstepInvocation]
     val example2substep2 = secondExampleScenario.steps(1).asInstanceOf[WrittenSubstepInvocation]
     val example2substep3 = secondExampleScenario.steps(2).asInstanceOf[WrittenSubstepInvocation]
@@ -93,7 +90,7 @@ class FeatureFileParserTest extends FeatureFileParser with ParsingTestHelpers[Fe
     scenario match {
 
       case scenarioOutline: OutlinedScenario => assertScenarioOutline(scenarioOutline)
-      case x => throw new AssertionError("Scenario was of wrong type" + x.getClass.toString);
+      case x => throw new AssertionError("Scenario was of wrong type" + x.getClass.toString)
 
     }
 

@@ -1,6 +1,7 @@
 package com.technophobia.substeps.model
 
 import scala.util.matching.Regex
+import com.technophobia.substeps.repositories.SubstepRepository
 
 
 /**
@@ -10,5 +11,5 @@ abstract class Substep(val regex: Regex) {
 
   assert(regex != null)
 
-  def createInvocation(invocation: String) : SubstepInvocation
+  def createInvocation(substepRepository: SubstepRepository, invocation: String) : SubstepInvocation
 }

@@ -10,9 +10,9 @@ abstract class SubstepInvocation {
 }
 object SubstepInvocation {
 
-  def apply(invocation: String) : SubstepInvocation = {
+  def apply(substepRepository: SubstepRepository, invocation: String) : SubstepInvocation = {
 
-    SubstepRepository.find(invocation).createInvocation(invocation)
+    substepRepository.find(invocation).createInvocation(substepRepository, invocation)
   }
 
 }

@@ -1,19 +1,12 @@
 package com.technophobia.substeps
 
-import org.junit.{Before, Assert, Test}
+import org.junit.{Assert, Test}
 
-import com.technophobia.substeps.repositories.SubstepRepository
-import com.technophobia.substeps.model.{WrittenSubstep, Substep}
+import _root_.com.technophobia.substeps.model.{WrittenSubstep, Substep}
 
 class SubstepsFileParserTest extends SubstepsFileParser with ParsingTestHelpers[List[Substep]]{
 
   private val SUBSTEPS_FILE = "simple.substeps"
-
-  @Before
-  def removeAllSubstepsFromCache() {
-
-    SubstepRepository.clear()
-  }
 
   @Test
   def testSubstepFile() {

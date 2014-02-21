@@ -1,8 +1,9 @@
 package com.technophobia.substeps
 
 import java.io.FileReader
+import com.technophobia.substeps.repositories.SubstepRepository
 
-object FeatureFileRunner extends FeatureFileParser {
+object FeatureFileRunner extends FeatureFileParser(new SubstepRepository) {
 
   def main(args: Array[String]) {
 

@@ -3,13 +3,14 @@ package com.technophobia.substeps.model
 import scala.util.matching.Regex
 import java.lang.reflect.Method
 import com.technophobia.substeps.model.parameter.ConverterFactory
+import com.technophobia.substeps.repositories.SubstepRepository
 
 case class CodedSubstep(signature: Regex, method: Method, instance: AnyRef) extends Substep(signature) {
 
   val argumentTypes: Seq[Class[_]] = method.getParameterTypes.toList
 
 
-  def createInvocation(invocation: String) = {
+  def createInvocation(substepRepository: SubstepRepository, invocation: String) = {
 
     def extractInputs(invocation: String): Seq[String] = {
 

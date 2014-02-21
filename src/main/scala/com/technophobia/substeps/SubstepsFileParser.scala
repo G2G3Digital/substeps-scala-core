@@ -1,6 +1,6 @@
 package com.technophobia.substeps
 
-import com.technophobia.substeps.model.{WrittenSubstep, Substep}
+import _root_.com.technophobia.substeps.model.{WrittenSubstep, Substep}
 
 class SubstepsFileParser extends AbstractParser[List[Substep]] {
 

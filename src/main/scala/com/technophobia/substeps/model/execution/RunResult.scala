@@ -36,6 +36,5 @@ object RunResult {
     def apply(reason: String): Failed = Failed(List(reason))
   }
 
-
 }
 
