@@ -2,8 +2,9 @@ package com.technophobia.substeps
 
 
 import org.junit.{Before, Test, Assert}
-import _root_.com.technophobia.substeps.model._
-import _root_.com.technophobia.substeps.repositories.SubstepRepository
+import _root_.com.technophobia.substeps.domain._
+import com.technophobia.substeps.domain.repositories.SubstepRepository
+import com.technophobia.substeps.parsing.FeatureFileParser
 
 class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) with ParsingTestHelpers[Feature] {
 

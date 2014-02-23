@@ -2,7 +2,8 @@ package com.technophobia.substeps
 
 import org.junit.{Assert, Test}
 
-import _root_.com.technophobia.substeps.model.{WrittenSubstep, Substep}
+import _root_.com.technophobia.substeps.domain.{WrittenSubstep, Substep}
+import com.technophobia.substeps.parsing.SubstepsFileParser
 
 class SubstepsFileParserTest extends SubstepsFileParser with ParsingTestHelpers[List[Substep]]{
 

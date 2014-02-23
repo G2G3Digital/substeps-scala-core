@@ -1,7 +1,8 @@
 package com.technophobia.substeps
 
 import java.io.FileReader
-import com.technophobia.substeps.repositories.SubstepRepository
+import com.technophobia.substeps.domain.repositories.SubstepRepository
+import com.technophobia.substeps.parsing.FeatureFileParser
 
 object FeatureFileRunner extends FeatureFileParser(new SubstepRepository) {
 

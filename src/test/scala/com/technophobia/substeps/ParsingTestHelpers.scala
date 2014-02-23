@@ -1,6 +1,7 @@
 package com.technophobia.substeps
 
 import java.io.InputStreamReader
+import com.technophobia.substeps.parsing.AbstractParser
 
 trait ParsingTestHelpers[T] {
 
