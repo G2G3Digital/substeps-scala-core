@@ -2,13 +2,21 @@ package com.technophobia.substeps.domain
 
 import com.technophobia.substeps.domain.execution.RunResult
 import com.technophobia.substeps.domain.repositories.SubstepRepository
+import com.technophobia.substeps.domain.events.{ExecutionCompleted, ExecutionStarted, DomainEventPublisher}
+import java.util.Date
 
-class BasicScenario(title: String, val steps: Seq[SubstepInvocation], tags: Set[Tag]) extends Scenario(title, tags) {
+case class BasicScenario(override val title: String, val steps: Seq[SubstepInvocation],override val  tags: Set[Tag]) extends Scenario(title, tags) {
 
 
   def run(): RunResult = {
 
-    steps.foldLeft[RunResult](RunResult.NoneRun)((b,a) => b.combine(a.run()))
+    DomainEventPublisher.instance().publish(ExecutionStarted(this))
+
+    val result = steps.foldLeft[RunResult](RunResult.NoneRun)((b,a) => b.combine(a.run()))
+
+    DomainEventPublisher.instance().publish(ExecutionCompleted(this, result))
+
+    result
   }
 
 

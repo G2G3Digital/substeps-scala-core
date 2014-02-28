@@ -25,11 +25,11 @@ case class CodedSubstep(signature: Regex, method: Method, instance: AnyRef) exte
 
     val inputStrings = extractInputs(invocation)
     val inputsCoerced = coerceInputs(inputStrings)
-    createInvocation(inputsCoerced)
+    createInvocation(invocation, inputsCoerced)
   }
 
-  private def createInvocation(inputs: Seq[AnyRef]) : CodedSubstepInvocation = {
+  private def createInvocation(invocationLine: String, inputs: Seq[AnyRef]) : CodedSubstepInvocation = {
 
-    CodedSubstepInvocation(() => method.invoke(instance, inputs:_*))
+    CodedSubstepInvocation(invocationLine, () => method.invoke(instance, inputs:_*))
   }
 }

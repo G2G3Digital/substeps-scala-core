@@ -2,15 +2,18 @@ package com.technophobia.substeps.domain
 
 import com.technophobia.substeps.domain.execution.RunResult
 import java.lang.reflect.InvocationTargetException
+import com.technophobia.substeps.domain.events.{ExecutionCompleted, ExecutionStarted, DomainEventPublisher}
 
 /**
  * @author rbarefield
  */
-case class CodedSubstepInvocation(f: () => Any) extends SubstepInvocation {
+case class CodedSubstepInvocation(invocationLine: String, f: () => Any) extends SubstepInvocation {
 
   def run(): RunResult = {
 
-    try {
+    DomainEventPublisher.instance().publish(ExecutionStarted(this))
+
+    val result = try {
 
       f()
       RunResult.Passed
@@ -29,5 +32,8 @@ case class CodedSubstepInvocation(f: () => Any) extends SubstepInvocation {
       }
     }
 
+    DomainEventPublisher.instance().publish(ExecutionCompleted(this, result))
+
+    result
   }
 }

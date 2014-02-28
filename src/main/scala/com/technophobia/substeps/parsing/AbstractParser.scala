@@ -2,6 +2,7 @@ package com.technophobia.substeps.parsing
 
 import scala.util.parsing.combinator.RegexParsers
 import java.io.Reader
+import com.technophobia.substeps.domain.events.{ParsingFailed, ParsingSuccessful, ParsingStarted, DomainEventPublisher}
 
 abstract class AbstractParser[T] extends RegexParsers  {
 
@@ -12,13 +13,27 @@ abstract class AbstractParser[T] extends RegexParsers  {
 
   protected def entryPoint: Parser[T];
 
-  def parse(reader: Reader) = parseAll(entryPoint, reader)
+  def parse(fileName: String, reader: Reader) = {
 
-  def parseOrFail(reader: Reader) : T = {
+    DomainEventPublisher.instance().publish(ParsingStarted(fileName))
+    val result = parseAll(entryPoint, reader)
 
-    parse(reader) match {
+    val completionEvent = result match {
 
-      case Success(feature, _) => feature
+      case Success(_, _) => ParsingSuccessful(fileName)
+      case x => ParsingFailed(fileName, x.toString)
+    }
+
+    DomainEventPublisher.instance().publish(completionEvent)
+
+    result
+  }
+
+  def parseOrFail(fileName: String, reader: Reader) : T = {
+
+    parse(fileName, reader) match {
+
+      case Success(content, _) => content
       case x => throw new ParseFailureException(x.toString)
 
     }

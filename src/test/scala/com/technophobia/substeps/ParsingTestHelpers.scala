@@ -24,7 +24,7 @@ trait ParsingTestHelpers[T] {
 
     try {
 
-      parse(reader)
+      parse(fileName, reader)
     }
     finally {
 

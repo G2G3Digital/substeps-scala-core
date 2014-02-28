@@ -10,8 +10,9 @@ import com.technophobia.substeps.model.SubSteps
 import SubSteps.Step
 import com.technophobia.substeps.domain.execution.RunResult
 import collection.JavaConversions._
+import com.technophobia.substeps.domain.events.{DomainEventPublisher, DomainEventSubscriber}
 
-class SubstepsSession {
+class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
 
   val substepRepository = new SubstepRepository
   var features = Map[String, Feature]()
@@ -19,19 +20,22 @@ class SubstepsSession {
   @throws[ParseFailureException]
   def addSubsteps(substepsFile: File) {
 
-    val substeps = new SubstepsFileParser().parseOrFail(new FileReader(substepsFile))
+    addSubscribersToDomainEventPublisher()
+    val substeps = new SubstepsFileParser().parseOrFail(substepsFile.getName, new FileReader(substepsFile))
     substeps.foreach(substepRepository.add)
   }
 
   @throws[ParseFailureException]
   def addFeature(featureFile: File) {
 
-    val feature = new FeatureFileParser(substepRepository).parseOrFail(new FileReader(featureFile))
+    addSubscribersToDomainEventPublisher()
+    val feature = new FeatureFileParser(substepRepository).parseOrFail(featureFile.getName, new FileReader(featureFile))
     features += (feature.name -> feature)
   }
 
   def addCodedSubsteps(codedSubstepClassInstance: AnyRef) {
 
+    addSubscribersToDomainEventPublisher()
     val codedSubsteps = for{method: Method <- ReflectionUtils.getAllMethods(codedSubstepClassInstance.getClass, ReflectionUtils.withAnnotation(classOf[Step]))
         stepAnnotation = method.getAnnotation(classOf[Step])} yield CodedSubstep(stepAnnotation.value().r, method, codedSubstepClassInstance)
 
@@ -40,6 +44,14 @@ class SubstepsSession {
 
   def run(tags: java.util.List[String]) = {
 
+    addSubscribersToDomainEventPublisher()
     features.values.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(a.run()))
+  }
+
+  private def addSubscribersToDomainEventPublisher() {
+
+    val publisher = DomainEventPublisher.instance()
+    publisher.reset()
+    subscribers.foreach(publisher.subscribe(_))
   }
 }

@@ -1,18 +1,18 @@
 package com.technophobia.substeps.domain.execution
 
-sealed abstract class RunResult {
+sealed abstract class RunResult(val text: String) {
 
   def combine(other: RunResult): RunResult
 
 }
 object RunResult {
 
-  object NoneRun extends RunResult {
+  object NoneRun extends RunResult("NothingRun") {
 
     def combine(other: RunResult) = other
   }
 
-  object Passed extends RunResult {
+  object Passed extends RunResult("Passed") {
 
     def combine(other: RunResult) = other match {
 
@@ -23,7 +23,7 @@ object RunResult {
 
   }
 
-  case class Failed(reasons: List[String]) extends RunResult {
+  case class Failed(reasons: List[String]) extends RunResult("Failed") {
 
     def combine(other: RunResult) = other match {
 
