@@ -7,7 +7,7 @@ import com.technophobia.substeps.domain.{CodedSubstep, Feature}
 import java.lang.reflect.Method
 import org.reflections.ReflectionUtils
 import com.technophobia.substeps.model.SubSteps
-import SubSteps.Step
+import com.technophobia.substeps.model.SubSteps.{StepImplementations, Step}
 import com.technophobia.substeps.domain.execution.RunResult
 import collection.JavaConversions._
 import com.technophobia.substeps.domain.events.{DomainEventPublisher, DomainEventSubscriber}
@@ -16,6 +16,8 @@ class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
 
   val substepRepository = new SubstepRepository
   var features = Map[String, Feature]()
+
+  val setupAndTeardownSubscriber = new SetupAndTeardownSubscriber()
 
   @throws[ParseFailureException]
   def addSubsteps(substepsFile: File) {
@@ -33,19 +35,28 @@ class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
     features += (feature.name -> feature)
   }
 
-  def addCodedSubsteps(codedSubstepClassInstance: AnyRef) {
+  def addCodedSubsteps(codedSubstepClass: Class[_]) {
+
+    val codedSubstepsClassInstance = codedSubstepClass.newInstance().asInstanceOf[AnyRef]
 
     addSubscribersToDomainEventPublisher()
-    val codedSubsteps = for{method: Method <- ReflectionUtils.getAllMethods(codedSubstepClassInstance.getClass, ReflectionUtils.withAnnotation(classOf[Step]))
-        stepAnnotation = method.getAnnotation(classOf[Step])} yield CodedSubstep(stepAnnotation.value().r, method, codedSubstepClassInstance)
+    val codedSubsteps = for{method: Method <- ReflectionUtils.getAllMethods(codedSubstepClass, ReflectionUtils.withAnnotation(classOf[Step]))
+        stepAnnotation = method.getAnnotation(classOf[Step])} yield CodedSubstep(stepAnnotation.value().r, method, codedSubstepsClassInstance)
+
+    val requiredInitializationClasses = codedSubstepClass.getAnnotation(classOf[StepImplementations]).requiredInitialisationClasses()
+
+    requiredInitializationClasses.foreach(setupAndTeardownSubscriber.addInitializationClass(_))
 
     codedSubsteps.foreach(substepRepository.add)
   }
 
   def run(tags: java.util.List[String]) = {
 
+    setupAndTeardownSubscriber.featuresStarting()
     addSubscribersToDomainEventPublisher()
-    features.values.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(a.run()))
+    val result = features.values.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(a.run()))
+    setupAndTeardownSubscriber.featuresComplete()
+    result
   }
 
   private def addSubscribersToDomainEventPublisher() {
@@ -53,5 +64,6 @@ class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
     val publisher = DomainEventPublisher.instance()
     publisher.reset()
     subscribers.foreach(publisher.subscribe(_))
+    publisher.subscribe(setupAndTeardownSubscriber)
   }
 }
