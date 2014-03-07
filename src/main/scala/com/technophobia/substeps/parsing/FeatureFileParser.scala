@@ -8,10 +8,12 @@ class FeatureFileParser(protected val substepRepository: SubstepRepository) exte
 
   protected override def entryPoint = featureFile
 
-  private def featureFile: Parser[Feature] = opt(tagDef <~ rep1(eol)) ~ (featureDef <~ rep1(eol)) ~ (rep(scenario) <~ rep(eol)) ^^ {
+  Oh isn't it features which have backgrounds???
 
-    case (Some(tags) ~ featureName ~ scenarios) => Feature(featureName, scenarios, tags.toSet)
-    case (None ~ featureName ~ scenarios) => Feature(featureName, scenarios, Set())
+  private def featureFile: Parser[Feature] = opt(tagDef <~ rep1(eol)) ~ (featureDef <~ rep1(eol)) ~ opt(background) ~ (rep(scenario) <~ rep(eol)) ^^ {
+
+    case (Some(tags) ~ optBackground ~ featureName ~ scenarios) => Feature(featureName, scenarios, tags.toSet)
+    case (None ~ optBackground ~ featureName ~ scenarios) => Feature(featureName, scenarios, Set())
   }
 
   private def tagDef: Parser[List[Tag]] = opt(whiteSpace) ~> "Tags:" ~> opt(whiteSpace) ~> repsep(tag, whiteSpace)
@@ -25,7 +27,7 @@ class FeatureFileParser(protected val substepRepository: SubstepRepository) exte
   private def basicScenario: Parser[BasicScenario] = (opt(tagDef <~ rep1(eol)) ~ scenarioDef <~ rep1(eol)) ~ rep1sep(substepInvocation, rep1(eol)) <~ rep(eol) ^^ {
 
     case (Some(tags) ~ scenarioName ~ substepInvocations) => BasicScenario(substepRepository, scenarioName, substepInvocations, tags.toSet)
-    case (None ~ scenarioName ~ substepInvocations) => BasicScenario(substepRepository, scenarioName, substepInvocations, Set())
+    case (None ~ scenarioName ~ substepInvocations) => BasicScenario(substepRepository, scenarioName, substepInvocations, Set[Tag]())
   }
 
   def substepInvocation: Parser[String] = """([^:\r\n])+""".r ^^ (_.trim)

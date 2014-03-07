@@ -1,19 +1,22 @@
 package com.technophobia.substeps.domain.execution
 
 import com.technophobia.substeps.domain.repositories.SubstepRepository
-import com.technophobia.substeps.domain.{OutlinedScenario, BasicScenario, WrittenSubstep, CodedSubstep}
+import com.technophobia.substeps.domain._
 import org.junit.{Assert, Test, Before}
+import com.technophobia.substeps.domain.CodedSubstep
 
 class ScenarioExecutionTest {
 
   var substepRepository = new SubstepRepository
-  
+
+  var calculator: Calculator = _
+
   @Before
   def createSubsteps() {
 
+    calculator = new Calculator
     substepRepository.clear()
 
-    val calculator = new Calculator
     val resetStep = CodedSubstep("Given my calculator is reset".r, classOf[Calculator].getMethod("reset"), calculator)
     val addStep = CodedSubstep( """ADD ([\d]+)""".r, classOf[Calculator].getMethod("add", classOf[Int]), calculator)
     val divideStep = CodedSubstep( """DIVIDE BY ([\d]+) ADD (.+) AND ROUND DOWN""".r, classOf[Calculator].getMethod("divideByAddAndRoundDown", classOf[Int], classOf[Double]), calculator)
@@ -30,14 +33,14 @@ class ScenarioExecutionTest {
   @Test
   def basicScenarioWhichShouldPassTest() {
 
-    val scenario = BasicScenario(substepRepository, "As a user I want to do some maths", List("Given my calculator is reset", "When I add 3 to 5 then divide by 2", "Then I get 4"), Set())
+    val scenario = BasicScenario(substepRepository, "As a user I want to do some maths", List("Given my calculator is reset", "When I add 3 to 5 then divide by 2", "Then I get 4"), Set[Tag]())
     Assert.assertEquals(RunResult.Passed, scenario.run())
   }
 
   @Test
   def basicScenarioWhichShouldFailTest() {
 
-    val scenario = BasicScenario(substepRepository, "As a user I want to do some maths", List("Given my calculator is reset", "When I add 1 to 9 then divide by 2", "Then I get 6"), Set())
+    val scenario = BasicScenario(substepRepository, "As a user I want to do some maths", List("Given my calculator is reset", "When I add 1 to 9 then divide by 2", "Then I get 6"), Set[Tag]())
     Assert.assertEquals(RunResult.Failed(List("expected:<6> but was:<5>")), scenario.run())
   }
 
@@ -50,6 +53,17 @@ class ScenarioExecutionTest {
     val outlineScenario = OutlinedScenario(substepRepository, "As a user I want to repeatedly do maths",
         List("Given my calculator is reset", "When I add <a> to <b> then divide by 2", "Then I get <c>"), examples, Set())
     Assert.assertEquals(RunResult.Passed, outlineScenario.run())
+  }
+
+  @Test
+  def backgroundsExecutedForBasicScenario() {
+
+    val background = Background(substepRepository, "I reset the calculator", List("Given my calculator is reset"))
+    val scenarioWithBackground = BasicScenario(substepRepository, "I want the background to be executed", background, List("Then I get 0"), Set())
+
+    calculator.add(5)
+    Assert.assertEquals(RunResult.Passed, scenarioWithBackground.run())
+
   }
 
   class Calculator {

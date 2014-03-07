@@ -10,6 +10,7 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
 
   private val SIMPLE_FEATURE_FILE = "simple.feature"
   private val SCENARIO_OUTLINE_FEATURE_FILE = "scenario-outline.feature"
+  private val SCENARIO_WITH_BACKGROUND_FILE = "scenario-with-background.feature"
 
   @Before
   def prepareSubsteps() {
@@ -21,6 +22,9 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
     substepRepository.add(WrittenSubstep("Given I think for <SECONDS>"))
     substepRepository.add(WrittenSubstep("Then I am <TIREDNESS_LEVEL>"))
     substepRepository.add(WrittenSubstep("So <SECONDS> means I'll be <TIREDNESS_LEVEL>"))
+
+    substepRepository.add(WrittenSubstep("Given I clear down the data"))
+    substepRepository.add(WrittenSubstep("And I rest all the counters"))
   }
 
   @Test
@@ -33,6 +37,8 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
     Assert.assertEquals(1, feature.scenarios.size)
 
     val scenario = feature.scenarios.head
+
+    Assert.assertEquals(None, scenario.asInstanceOf[BasicScenario].background)
 
     Assert.assertEquals("A simple scenario name", scenario.title)
     Assert.assertEquals(Set("scenarioTag-1", "scenarioTag-2"), scenario.asInstanceOf[BasicScenario].tags)
@@ -94,6 +100,23 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
 
     }
 
+  }
+
+  @Test
+  def scenarioWithBackground() {
+
+    val feature = getSuccessfulParse(SCENARIO_WITH_BACKGROUND_FILE)
+    val scenario = feature.scenarios.head.asInstanceOf[BasicScenario]
+    Assert.assertEquals(2, scenario.steps)
+    val background = scenario.background
+    Assert.assertTrue(background.isDefined)
+    Assert.assertEquals("This runs before the scenario", background.get.title)
+    val backgroundSteps = background.get.steps
+    Assert.assertEquals(2, backgroundSteps)
+    val step1 = backgroundSteps(0).asInstanceOf[WrittenSubstep]
+    val step2 = backgroundSteps(1).asInstanceOf[WrittenSubstep]
+    Assert.assertEquals("Given I clear down the data", step1.signature)
+    Assert.assertEquals("And I reset all the counters", step2.signature)
   }
 
   @Test
