@@ -58,11 +58,11 @@ class SetupAndTeardownSubscriber extends DomainEventSubscriber {
 
     event match {
 
-      case ExecutionStarted(Feature(_, _, _), _) => beforeEveryFeature.foreach(_())
-      case ExecutionStarted(BasicScenario(_, _, _, _), _) => beforeEveryScenario.foreach(_())
+      case ExecutionStarted(Feature(_, _, _, _), _) => beforeEveryFeature.foreach(_())
+      case ExecutionStarted(BasicScenario(_, _, _), _) => beforeEveryScenario.foreach(_())
 
-      case ExecutionCompleted(BasicScenario(_, _, _, _), _, _) => afterEveryScenario.foreach(_())
-      case ExecutionCompleted(Feature(_, _, _), _, _) => afterEveryFeature.foreach(_())
+      case ExecutionCompleted(BasicScenario(_, _, _), _, _) => afterEveryScenario.foreach(_())
+      case ExecutionCompleted(Feature(_, _, _, _), _, _) => afterEveryFeature.foreach(_())
 
 
       case _ => {}

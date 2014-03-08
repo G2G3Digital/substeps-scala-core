@@ -13,10 +13,10 @@ class SetupAndTeardownSubscriberTest {
   @Test
   def testDomainEvents() {
 
-    assertEventCausesState(ExecutionStarted(Feature(null, null, null)), false, true, false, false, false, false)
-    assertEventCausesState(ExecutionStarted(BasicScenario(null, null.asInstanceOf[Option[Background]], null, Set[Tag]())), false, false, true, false, false, false)
-    assertEventCausesState(ExecutionCompleted(Feature(null, null, null), null, null), false, false, false, false, true, false)
-    assertEventCausesState(ExecutionCompleted(BasicScenario(null, null.asInstanceOf[Option[Background]], null, Set[Tag]()), null), false, false, false, false, false, true)
+    assertEventCausesState(ExecutionStarted(Feature(null, null, null, null)), false, true, false, false, false, false)
+    assertEventCausesState(ExecutionStarted(BasicScenario(null, null, Set[Tag]())), false, false, true, false, false, false)
+    assertEventCausesState(ExecutionCompleted(Feature(null, null, null, null), null, null), false, false, false, false, true, false)
+    assertEventCausesState(ExecutionCompleted(BasicScenario(null, null, Set[Tag]()), null), false, false, false, false, false, true)
   }
 
   private def assertEventCausesState(event: SubstepsDomainEvent, expectBeforeAllFeatures: Boolean, 

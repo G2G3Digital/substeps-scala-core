@@ -55,17 +55,6 @@ class ScenarioExecutionTest {
     Assert.assertEquals(RunResult.Passed, outlineScenario.run())
   }
 
-  @Test
-  def backgroundsExecutedForBasicScenario() {
-
-    val background = Background(substepRepository, "I reset the calculator", List("Given my calculator is reset"))
-    val scenarioWithBackground = BasicScenario(substepRepository, "I want the background to be executed", background, List("Then I get 0"), Set())
-
-    calculator.add(5)
-    Assert.assertEquals(RunResult.Passed, scenarioWithBackground.run())
-
-  }
-
   class Calculator {
 
     var memory: Int = 0

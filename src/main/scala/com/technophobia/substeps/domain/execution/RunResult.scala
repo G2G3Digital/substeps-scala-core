@@ -4,6 +4,8 @@ sealed abstract class RunResult(val text: String) {
 
   def combine(other: RunResult): RunResult
 
+  def isPass = false
+
 }
 object RunResult {
 
@@ -21,6 +23,7 @@ object RunResult {
       case x => x
     }
 
+    override def isPass = true
   }
 
   case class Failed(reasons: List[String]) extends RunResult("Failed") {
