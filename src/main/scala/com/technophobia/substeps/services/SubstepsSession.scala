@@ -3,14 +3,14 @@ package com.technophobia.substeps.services
 import java.io.{FileReader, File}
 import com.technophobia.substeps.parsing.{FeatureFileParser, ParseFailureException, SubstepsFileParser}
 import com.technophobia.substeps.domain.repositories.SubstepRepository
-import com.technophobia.substeps.domain.{CodedSubstep, Feature}
+import com.technophobia.substeps.domain.{TagChecker, Tag, CodedSubstep, Feature}
 import java.lang.reflect.Method
 import org.reflections.ReflectionUtils
 import com.technophobia.substeps.model.SubSteps
 import com.technophobia.substeps.model.SubSteps.{StepImplementations, Step}
 import com.technophobia.substeps.domain.execution.RunResult
 import collection.JavaConversions._
-import com.technophobia.substeps.domain.events.{DomainEventPublisher, DomainEventSubscriber}
+import com.technophobia.substeps.domain.events.{FeatureSkipped, DomainEventPublisher, DomainEventSubscriber}
 
 class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
 
@@ -50,11 +50,31 @@ class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
     codedSubsteps.foreach(substepRepository.add)
   }
 
-  def run(tags: java.util.List[String]) = {
+  def run(): RunResult = {
+
+    run(TagChecker.runAll)
+  }
+
+  def runWith(inclusions: Set[Tag]): RunResult = {
+
+    run(TagChecker.fromInclusions(inclusions))
+  }
+
+  def runWithout(exclusions: Set[Tag]): RunResult = {
+
+    run(TagChecker.fromExclusions(exclusions))
+  }
+
+  private def run(tagChecker: TagChecker): RunResult = {
+
+    addSubscribersToDomainEventPublisher()
+
+    val (featuresToRun, featuresToSkip) = features.values.partition(_.isApplicableGiven(tagChecker))
+
+    featuresToSkip.foreach[Unit](f => DomainEventPublisher.instance().publish(FeatureSkipped(f)))
 
     setupAndTeardownSubscriber.featuresStarting()
-    addSubscribersToDomainEventPublisher()
-    val result = features.values.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(a.run()))
+    val result = featuresToRun.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(a.run()))
     setupAndTeardownSubscriber.featuresComplete()
     result
   }

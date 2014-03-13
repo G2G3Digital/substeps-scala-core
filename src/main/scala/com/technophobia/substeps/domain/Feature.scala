@@ -5,7 +5,13 @@ import com.technophobia.substeps.domain.events.{ExecutionCompleted, ExecutionSta
 
 case class Feature(name: String, background: Option[Background], scenarios: List[Scenario], tags: Set[Tag]) {
 
+  def isApplicableGiven(tagChecker: TagChecker) = {
+
+    tagChecker.shouldRunFor(tags)
+  }
+
   def run():RunResult = {
+
 
     DomainEventPublisher.instance().publish(ExecutionStarted(this))
 
