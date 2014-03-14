@@ -11,13 +11,10 @@ object TagChecker {
     override def shouldRunFor(tags: Set[Tag]) = tags.forall(!exclusions.contains(_))
   }
 
-  def fromInclusions(inclusions: Set[Tag]) = new TagChecker {
+  def fromInclusionsAndExclusions(inclusions: Set[Tag], exclusions: Set[Tag]) = new TagChecker {
 
-    override def shouldRunFor(tags: Set[Tag]) = tags.exists(inclusions.contains(_))
-  }
+    val exclusionChecker = fromExclusions(exclusions)
 
-  val runAll = new TagChecker {
-
-    override def shouldRunFor(tags: Set[Tag]) = true
+    def shouldRunFor(tags: Set[Tag]) = tags.exists(inclusions.contains(_)) && exclusionChecker.shouldRunFor(tags)
   }
 }

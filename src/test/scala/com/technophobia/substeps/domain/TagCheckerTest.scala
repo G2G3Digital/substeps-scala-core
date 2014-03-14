@@ -5,9 +5,9 @@ import org.junit.{Assert, Test}
 class TagCheckerTest {
 
   @Test
-  def testFromInclusions() {
+  def testOnlyInclusions() {
 
-    val inclusionChecker = TagChecker.fromInclusions(Set("include1", "include2"))
+    val inclusionChecker = TagChecker.fromInclusionsAndExclusions(Set("include1", "include2"), Set())
 
     Assert.assertTrue(inclusionChecker.shouldRunFor(Set("include1", "include2")))
     Assert.assertTrue(inclusionChecker.shouldRunFor(Set("include1")))
@@ -31,12 +31,24 @@ class TagCheckerTest {
   }
 
   @Test
-  def testFromAll() {
+  def testNothingExcluded() {
 
-    val runAllChecker = TagChecker.runAll
+    val runAllChecker = TagChecker.fromExclusions(Set())
 
     Assert.assertTrue(runAllChecker.shouldRunFor(Set()))
     Assert.assertTrue(runAllChecker.shouldRunFor(Set("something")))
     Assert.assertTrue(runAllChecker.shouldRunFor(Set("something", "somethingElse")))
+  }
+
+  @Test
+  def testSomeIncludedAndSomeExcluded() {
+
+    val inclusionAndExclusionChecker = TagChecker.fromInclusionsAndExclusions(Set("included", "included2"), Set("excluded"))
+
+    Assert.assertTrue(inclusionAndExclusionChecker.shouldRunFor(Set("included")))
+    Assert.assertFalse(inclusionAndExclusionChecker.shouldRunFor(Set("included", "excluded")))
+    Assert.assertFalse(inclusionAndExclusionChecker.shouldRunFor(Set("included", "included2", "excluded")))
+    Assert.assertFalse(inclusionAndExclusionChecker.shouldRunFor(Set("other")))
+    Assert.assertFalse(inclusionAndExclusionChecker.shouldRunFor(Set("other", "excluded")))
   }
 }

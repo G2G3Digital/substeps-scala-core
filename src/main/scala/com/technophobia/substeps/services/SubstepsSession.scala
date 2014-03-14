@@ -15,7 +15,7 @@ import com.technophobia.substeps.domain.events.{FeatureSkipped, DomainEventPubli
 class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
 
   val substepRepository = new SubstepRepository
-  var features = Map[String, Feature]()
+  private[services] var features = Map[String, Feature]()
 
   val setupAndTeardownSubscriber = new SetupAndTeardownSubscriber()
 
@@ -50,19 +50,15 @@ class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
     codedSubsteps.foreach(substepRepository.add)
   }
 
-  def run(): RunResult = {
+  def run(optionalInclusions: Option[Set[Tag]], exclusions: Set[Tag]): RunResult = {
 
-    run(TagChecker.runAll)
-  }
+    val tagChecker = optionalInclusions match {
 
-  def runWith(inclusions: Set[Tag]): RunResult = {
+      case Some(inclusions) => TagChecker.fromInclusionsAndExclusions(inclusions, exclusions)
+      case None => TagChecker.fromExclusions(exclusions)
+    }
 
-    run(TagChecker.fromInclusions(inclusions))
-  }
-
-  def runWithout(exclusions: Set[Tag]): RunResult = {
-
-    run(TagChecker.fromExclusions(exclusions))
+    run(tagChecker)
   }
 
   private def run(tagChecker: TagChecker): RunResult = {
