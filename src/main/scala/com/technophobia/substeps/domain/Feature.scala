@@ -1,7 +1,9 @@
 package com.technophobia.substeps.domain
 
 import com.technophobia.substeps.domain.execution.RunResult
-import com.technophobia.substeps.domain.events.{ExecutionCompleted, ExecutionStarted, DomainEventPublisher}
+import com.technophobia.substeps.domain.events._
+import com.technophobia.substeps.domain.events.ExecutionStarted
+import com.technophobia.substeps.domain.events.ExecutionCompleted
 
 case class Feature(name: String, background: Option[Background], scenarios: List[Scenario], tags: Set[Tag]) {
 
@@ -10,10 +12,13 @@ case class Feature(name: String, background: Option[Background], scenarios: List
     tagChecker.shouldRunFor(tags)
   }
 
-  def run():RunResult = {
-
+  def run(tagChecker: TagChecker):RunResult = {
 
     DomainEventPublisher.instance().publish(ExecutionStarted(this))
+
+    val (scenariosToRun, scenariosToSkip) = scenarios.partition(_.isApplicableGiven(tagChecker))
+
+    scenariosToSkip.foreach[Unit](f => DomainEventPublisher.instance().publish(ScenarioSkipped(f)))
 
     def runWithBackground(scenario: Scenario) = {
 
@@ -29,8 +34,7 @@ case class Feature(name: String, background: Option[Background], scenarios: List
       }
     }
 
-    val result = scenarios.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(runWithBackground(a)))
-
+    val result = scenariosToRun.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(runWithBackground(a)))
 
     DomainEventPublisher.instance().publish(ExecutionCompleted(this, result))
 

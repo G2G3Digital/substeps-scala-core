@@ -70,7 +70,7 @@ class SubstepsSession(val subscribers: java.util.Set[DomainEventSubscriber]) {
     featuresToSkip.foreach[Unit](f => DomainEventPublisher.instance().publish(FeatureSkipped(f)))
 
     setupAndTeardownSubscriber.featuresStarting()
-    val result = featuresToRun.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(a.run()))
+    val result = featuresToRun.foldLeft[RunResult](RunResult.NoneRun)((b, a) => b.combine(a.run(tagChecker)))
     setupAndTeardownSubscriber.featuresComplete()
     result
   }
