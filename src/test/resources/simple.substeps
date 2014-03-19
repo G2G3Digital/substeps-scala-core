@@ -30,7 +30,7 @@ Given something
 
 Define: Then a method with a quoted '<param>' 
 Then method with param <param>    			
-  
+
 
   Define: Given something
 
