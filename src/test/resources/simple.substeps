@@ -1,14 +1,16 @@
 
+#A comment
+
 Define: Given series of substeps is executed
 
 
-
+     #Another comment
 
 
 
 When an event occurs
 Then bad things happen
-And people get upset
+And people get upset  #A comment at the end of the line
 
 Define: Given substep with param1 <name1> and param2 <name2>
 Then method with param <name1>
@@ -28,9 +30,10 @@ Given something
 
 Define: Then a method with a quoted '<param>' 
 Then method with param <param>    			
-
+  
 
   Define: Given something
 
 
 I'll take it
+#A comment at the end of the file

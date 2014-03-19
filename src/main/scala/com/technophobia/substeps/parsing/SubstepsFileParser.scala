@@ -13,7 +13,7 @@ class SubstepsFileParser extends AbstractParser[List[Substep]] {
     case(signature ~ substepUsages) => WrittenSubstep(signature, substepUsages:_*)
   }
 
-  def substepInvocation: Parser[String] = """([^:\r\n])+""".r ^^ (_.trim)
+  def substepInvocation: Parser[String] = """([^:\r\n#])+""".r ^^ (_.trim)
 
-  private def signature: Parser[String] = opt(whiteSpace) ~> "Define:" ~> opt(whiteSpace) ~> """[^\n\r]+""".r ^^ ((x) => x.trim)
+  private def signature: Parser[String] = opt(whiteSpace) ~> "Define:" ~> opt(whiteSpace) ~> """[^\n\r#]+""".r ^^ ((x) => x.trim)
 }

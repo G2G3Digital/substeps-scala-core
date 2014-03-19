@@ -7,6 +7,8 @@ import java.util.Date
 
 case class BasicScenario(override val title: String, val steps: Seq[SubstepInvocation],override val  tags: Set[Tag]) extends Scenario(title, tags) {
 
+  assert(steps != null, "Steps must not be null for a BasicScenario")
+
   def run(): RunResult = {
 
     DomainEventPublisher.instance().publish(ExecutionStarted(this))

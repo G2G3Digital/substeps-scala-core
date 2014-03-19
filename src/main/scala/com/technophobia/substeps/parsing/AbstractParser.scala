@@ -9,14 +9,18 @@ abstract class AbstractParser[T] extends RegexParsers  {
   override val skipWhitespace = false
   override val whiteSpace                    = """[ \t]+""".r
 
-  def eol: Parser[Any]                       = """[ ]*\r?\n""".r
+  def comment: Parser[String] = opt(whiteSpace) ~> """#[^\r\n]*""".r
 
-  protected def entryPoint: Parser[T];
+  def eol: Parser[Any]                       = opt(comment) ~> """[ \t]*\r?\n""".r
+
+  protected def entryPoint: Parser[T]
+
+  private def entryPointSurroundedByComments: Parser[T] = rep(comment <~ eol) ~> entryPoint <~ rep(comment <~ eol) <~ opt(comment)
 
   def parse(fileName: String, reader: Reader) = {
 
     DomainEventPublisher.instance().publish(ParsingStarted(fileName))
-    val result = parseAll(entryPoint, reader)
+    val result = parseAll(entryPointSurroundedByComments, reader)
 
     val completionEvent = result match {
 

@@ -7,6 +7,9 @@ import com.technophobia.substeps.domain.events.ExecutionCompleted
 
 case class Feature(name: String, background: Option[Background], scenarios: List[Scenario], tags: Set[Tag]) {
 
+  assert(scenarios != null, "Scenarios must not be null for a Feature")
+  assert(tags != null, "Tags must not be null for a Feature")
+
   def isApplicableGiven(tagChecker: TagChecker) = {
 
     tagChecker.shouldRunFor(tags)

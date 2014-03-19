@@ -9,6 +9,7 @@ import com.technophobia.substeps.parsing.FeatureFileParser
 class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) with ParsingTestHelpers[Feature] {
 
   private val SIMPLE_FEATURE_FILE = "simple.feature"
+  private val SIMPLE_FEATURE_WITH_GAPS_AND_COMMENTS_FILE = "gapsAndComments.feature"
   private val SCENARIO_OUTLINE_FEATURE_FILE = "scenario-outline.feature"
   private val SCENARIO_WITH_BACKGROUND_FILE = "scenario-with-background.feature"
 
@@ -32,6 +33,21 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
 
     val feature = getSuccessfulParse(SIMPLE_FEATURE_FILE)
 
+    assertSimpleFeature(feature)
+
+  }
+
+  @Test
+  def testSimpleFeatureWithGapsAndComments() {
+
+    val feature = getSuccessfulParse(SIMPLE_FEATURE_WITH_GAPS_AND_COMMENTS_FILE)
+
+    assertSimpleFeature(feature)
+
+  }
+
+
+  def assertSimpleFeature(feature: Feature) {
     Assert.assertEquals("A simple feature name", feature.name)
     Assert.assertEquals(Set("featureTag-1", "featureTag-2"), feature.tags)
     Assert.assertEquals(1, feature.scenarios.size)
@@ -47,7 +63,6 @@ class FeatureFileParserTest extends FeatureFileParser(new SubstepRepository) wit
 
     Assert.assertEquals("Given I think", substep1.invocationLine)
     Assert.assertEquals("Then I am", substep2.invocationLine)
-
   }
 
   @Test
