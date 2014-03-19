@@ -8,6 +8,15 @@
     <version>0.1-SNAPSHOT</version>
 
     <name>Substeps Scala Core</name>
+
+    <licenses>
+        <license>
+            <name>LGPL 3.0 license</name>
+            <url>http://www.opensource.org/licenses/lgpl-3.0.html</url>
+            <distribution>manual</distribution>
+      </license>
+    </licenses>
+
     <repositories>
         <repository>
             <id>scala-tools.org</id>
